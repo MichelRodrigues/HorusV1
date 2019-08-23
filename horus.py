@@ -58,7 +58,7 @@ while(True):
     
     #frame = imutils.resize(frame, width=400)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=3)
     for (x,y,w,h) in faces:
         color = (255,200,0) #BGR
         stroke = 1
