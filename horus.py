@@ -123,7 +123,7 @@ while True:
             #cv2.rectangle(image, (x_,y_), (x1,y1), (255,0,0), 1)
             cv2.putText(image, "rastreando" , (int(x_+(x1/2)), int(y_)), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
             
-            if(y_<100):
+            if(y_<90):
               attempts = 0
               flag=0
               
