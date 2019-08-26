@@ -11,7 +11,7 @@
 #Removidos framecounter
 #arrumado contador que nao estava incrementando corretamente
 #retirados boxes que circulam as pessoas
-#retirada linha de referencia por enquanto para melhorar a deteccao e rastreio
+#ajuste da 'linha de referencia' (mais alta) para melhorar a deteccao e rastreio
 #A tela limpa servira para estimativa de genero e idade
 
 
