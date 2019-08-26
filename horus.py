@@ -128,7 +128,7 @@ while True:
               flag=0
               
               
-            if(y_ > 390 and flag==0):
+            if(y_ > 300 and flag==0):
                 
                 flag=1
                 
