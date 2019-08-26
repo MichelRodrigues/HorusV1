@@ -1,20 +1,22 @@
 #!/usr/bin/python3
 
-#Atualizacao 5 (por Michel Rodrigues)
-#Programa somente com o contador
+#Atualizacao 6 (por Michel Rodrigues)
+#numero reduzidos de biblioteca
+#Detecta e efetua a contagem
 #conta e envia os registros para nuvem
-#Diminuidos scaleFactor de 1.5 para 1.1
+#Diminuidos scaleFactor de 1.5 para 1.3
 #Contagem com maior qualidade
 #Dados e status mostrados na tela
 #Numero de contagem impresso na tela
 #Removidos framecounter
-#arrumado contador que não estava incrementando corretamente
+#arrumado contador que nao estava incrementando corretamente
 #retirados boxes que circulam as pessoas
-#retirada linha de referência por enquanto para melhorar a detecção e rastreio
+#retirada linha de referencia por enquanto para melhorar a deteccao e rastreio
+#A tela limpa servira para estimativa de genero e idade
 
-import numpy as np
+
 import cv2
-import imutils
+import dlib
 from datetime import datetime
 import requests
 import json
@@ -31,72 +33,122 @@ status = 400
 
 face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_frontalface_alt2.xml")
 
-#cap = cv2.VideoCapture("/home/pi/teste2.mp4")
-cap = cv2.VideoCapture(0)
+video_capture = cv2.VideoCapture(0)
+#video_capture = cv2.VideoCapture("/home/pi/teste.mp4")
 
+tracker = dlib.correlation_tracker()
+
+detects=[]
+tracked = False
 numFaces=0
+y_=0
 
-frame_largura = int( cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-
-frame_altura =int( cap.get( cv2.CAP_PROP_FRAME_HEIGHT))
-
-y=0
-
-flag=0
+coord=[]
 
 tempoIni = datetime.now()
 
-numFaces=0
-
 objectID=0
 
-while(True):
+def printa_faces(a,num):
+    x,y,w,h = a
+          
+    end_cord_x = x + w
+    end_cord_y = y + h
+    cv2.rectangle(image, (x,y), (end_cord_x, end_cord_y), (255,0,0), 1)
+    '''
+    dlib_rect = dlib.rectangle(x, y, end_cord_x, end_cord_y)
+    tracked = True
+    tracker.start_track(image, dlib_rect)
+    
+    track()
+    '''
+
+flag=0
+
+while True:
     
     ok=None
-  
-    ret, frame = cap.read()
     
-    #frame = imutils.resize(frame, width=400)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=3)
-    for (x,y,w,h) in faces:
-        color = (255,200,0) #BGR
-        stroke = 1
-        end_cord_x = x + w
-        end_cord_y = y + h
-        #cv2.rectangle(frame, (x,y), (end_cord_x, end_cord_y), color, stroke)
-        if(y>(240)):
-            flag=1
-            cv2.putText(frame, "Iniciando processo de contagem...", (5, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 2)
-        else:
-            attempts=0
-            flag=0
-    
-    faces_cont=len(faces)
-    
-    if faces_cont == 0:
+    ret, frame = video_capture.read()
+
+    if ret:
+        image = frame
         
-        timeOut = datetime.now() - tempoIni
-    else:
-        tempoIni = datetime.now()
+        coord=[]
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=3)
+        faces_cont=len(faces)
+        
+        if faces_cont == 0:
+          timeOut = datetime.now() - tempoIni
+        else:
+          tempoIni = datetime.now()
+        
+         
+        
+        while(numFaces < faces_cont):
+            
+          timeOut=datetime.now()-tempoIni
+          detects.append(numFaces)
+          coord.append(faces)
+          #
+          #print(coord[0][numFaces])
+          a=(coord[0][numFaces])
+          numFaces+=1
+          tracked= True
+          
+        if (timeOut.seconds > 7) :
+        
+          tracked=False
+          numFaces=0
+        
+        
+          
+        for (x,y,w,h) in faces:
+          end_cord_x = x + w
+          end_cord_y = y + h
+          #cv2.rectangle(image, (x,y), (end_cord_x, end_cord_y), (255,0,0), 1)
+          dlib_rect = dlib.rectangle(x, y, end_cord_x, end_cord_y)
+          
+          tracker.start_track(image, dlib_rect)
+          
+        if tracked == True:
+            
+            tracker.update(image)
+            track_rect = tracker.get_position()
+            x_  = int(track_rect.left())
+            y_  = int(track_rect.top())
+            x1 = int(track_rect.right())
+            y1 = int(track_rect.bottom())
+            #cv2.rectangle(image, (x_,y_), (x1,y1), (255,0,0), 1)
+            cv2.putText(image, "rastreando" , (int(x_+(x1/2)), int(y_)), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
+            
+            if(y_<100):
+              
+              flag=0
+              
+              
+            if(y_ > 390 and flag==0):
+                
+                flag=1
+                
+                ContadorSaidas = ContadorSaidas + numFaces
+                
+                numFaces=0
+                
+                ok=1
+                
+        if(numFaces==0):
+          
+          Tracked = False
+                  
+                
+          
     
-    
-    while(numFaces < faces_cont):
-      timeOut=datetime.now()-tempoIni 
-      numFaces+=1
-      
-    if (timeOut.seconds > 5) :
-      
-      if(flag==1):  
-        ContadorSaidas=ContadorSaidas+numFaces
-        ok=1
-      numFaces=0
-      
-    
-    cv2.putText(frame, "Contagem: {}".format(str(ContadorSaidas)), (5, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)  
-      
-    cv2.putText(frame, "Pessoas detectadas: {}".format(str(numFaces)), (5, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 55), 2)
-    
+    cv2.putText(frame, "Contagem: {}".format(str(ContadorSaidas)), (5, 270), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+              
+                    #cv2.rectangle(image, (x_, y_), (x1, y1), (255, 0, 100), 2)
+    cv2.putText(image, "Pessoas detectadas: {}".format(str(numFaces)), (5, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 55), 2)
     file1 = open("contagem.txt", "w")
     #salva registros txt
     L = ["Id: "+str(objectID)+" \n", "Flag: "+str(flag)+" \n", "Contagem:"  +str(ContadorSaidas)+" \n"]
@@ -151,10 +203,15 @@ while(True):
               cv2.putText(frame, "Registro enviado para a nuvem!...", (5, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
            
     cv2.putText(frame, "Pressione ESC para sair", (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 150, 100), 2)
-    cv2.imshow("Output", frame)
-    
+       # show the current frame.
+    cv2.imshow("Output", image)
+       
+ 
+
+    # press "q" to quit the program.
     if cv2.waitKey(1) == 27 & 0xFF :
       break
-cap.release()  
+
+# cleanup.
+video_capture.release()
 cv2.destroyAllWindows()
-    
