@@ -57,7 +57,7 @@ while(True):
       numFaces=1+numFaces
       
       for (x,y,w,h) in faces:
-        coord=(x,y,w,h)  
+        coord=(x-20,y-20,w+20,h+20)  
       flag=1 
     
     if a != 0 and flag == 1:
