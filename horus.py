@@ -57,7 +57,7 @@ while(True):
       numFaces=1+numFaces
       
       for (x,y,w,h) in faces:
-        coord=(x-20,y-20,w+20,h+20)  
+        coord=(x-20,y-20,w+20,h+40)  
       flag=1 
     
     if a != 0 and flag == 1:
@@ -81,7 +81,7 @@ while(True):
       #cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
       cv2.putText(frame, "rastreando ...", (int(newbox[0]+90), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
       
-      if(int(newbox[1]) >350):
+      if(int(newbox[1]) >300):
           ok=1
           attempts = 0
           ContadorSaidas=ContadorSaidas+numFaces
