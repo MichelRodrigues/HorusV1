@@ -90,8 +90,8 @@ while(True):
       for i, newbox in enumerate(boxes):
         p1 = (int(newbox[0]), int(newbox[1]))
         p2 = (int(newbox[0] + newbox[2]), int(newbox[1] + newbox[3]))
-        cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
-        #cv2.putText(frame, "rastreando ...", (int(newbox[0]+90), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
+        #cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
+        cv2.putText(frame, "rastreando ...", (int(newbox[0]+90), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
         
         if(int(newbox[1] + newbox[3]) > 460):
           ok=1
