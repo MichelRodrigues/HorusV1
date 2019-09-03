@@ -24,8 +24,8 @@ status = 400
 face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_frontalface_alt2.xml")
 #face_cascade = cv2.CascadeClassifier("/home/pi/models/upperbody_recognition_model.xml")
 #face_cascade1 = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_profileface.xml")
-tracker = cv2.TrackerMedianFlow_create()
-videoPath = "/home/pi/teste.mp4"
+
+videoPath = "/home/pi/vim.mp4"
 #cap = cv2.VideoCapture(videoPath)
 cap = cv2.VideoCapture(0)
 
@@ -45,7 +45,12 @@ tempoIni = datetime.now()
 
 objectID=0
 
-multiTracker = cv2.MultiTracker_create()
+#multiTracker = cv2.MultiTracker_create()
+
+def track_system():
+    
+    success, boxes = multiTracker.update(frame)
+    return boxes
 
 while(True):
     flag=0
@@ -75,55 +80,48 @@ while(True):
         
         bbox=tuple(coord)
         bboxes.append(bbox)
-        
-        #print(bboxes)
+        tracker = cv2.TrackerMedianFlow_create()
+        multiTracker = cv2.MultiTracker_create()
         for bbox in bboxes:
-          #multiTracker = cv2.MultiTracker_create()
+          
           multiTracker.add(tracker, frame, bbox) 
-        
-        track = True
-        
+          
+          track = True
+    
+            
+    
     if track == True:
       
-      success, boxes = multiTracker.update(frame)
+      
+      
+      boxes = track_system()
+      
+      print(boxes)
       
       for i, newbox in enumerate(boxes):
         p1 = (int(newbox[0]), int(newbox[1]))
         p2 = (int(newbox[0] + newbox[2]), int(newbox[1] + newbox[3]))
-        #cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
-        cv2.putText(frame, "rastreando ...", (int(newbox[0]+90), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
+        cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
+        #cv2.putText(frame, "rastreando ...", (int(newbox[0]+90), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
         
         if(int(newbox[1] + newbox[3]) > 460):
           ok=1
           attempts = 0
           flag=0
           
-          a=0
-          
-          bboxes = []
-          bbox=[]
-          boxes = []
+          tracker.clear()
           
            
           track=False
-   
-    cv2.putText(frame, "Contagem: {}".format(str(ContadorSaidas)), (5, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-              
-                    #cv2.rectangle(frame, (x_, y_), (x1, y1), (255, 0, 100), 2)
-    cv2.putText(frame, "Pessoas detectadas: {}".format(str(numFaces)), (5, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 55), 2)
-    file1 = open("contagem.txt", "w")
-    #salva registros txt
-    L = ["Id: "+str(objectID)+" \n", "Flag: "+str(flag)+" \n", "Contagem:"  +str(ContadorSaidas)+" \n"]
-
-    file1.write("Registros: \n")
-    file1.writelines(L)
-    file1.close()
-    
-    
+      boxes=[]
+    if ok ==1:
+        
+        ContadorSaidas=ContadorSaidas+numFaces
+        numFaces-=1
+        bboxes.remove(bbox)
     
     if (ok != None and attempts == 0):
-      ContadorSaidas=ContadorSaidas+numFaces
-      numFaces=0
+      ok=None  
       if ( status >= 400 and attempts <=5):
             attempts +=1
             timestamp = datetime.now()
@@ -166,6 +164,20 @@ while(True):
               break
             else:
               cv2.putText(frame, "Registro enviado para a nuvem!...", (5, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+              
+    cv2.putText(frame, "Contagem: {}".format(str(ContadorSaidas)), (5, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+              
+                    #cv2.rectangle(frame, (x_, y_), (x1, y1), (255, 0, 100), 2)
+    cv2.putText(frame, "Pessoas detectadas: {}".format(str(numFaces)), (5, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 55), 2)
+    file1 = open("contagem.txt", "w")
+    #salva registros txt
+    L = ["Id: "+str(objectID)+" \n", "Flag: "+str(flag)+" \n", "Contagem:"  +str(ContadorSaidas)+" \n"]
+
+    file1.write("Registros: \n")
+    file1.writelines(L)
+    file1.close()
+    
+    
          
     cv2.putText(frame, "Entrada da loja", (450, 290), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (250, 255, 55), 2)
     cv2.line(frame, (0,270), (frame_largura ,270), (250, 255, 55), 1)       
