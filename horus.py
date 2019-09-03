@@ -96,7 +96,7 @@ while(True):
       
       boxes = track_system()
       
-      print(boxes)
+      #print(boxes)
       
       for i, newbox in enumerate(boxes):
         p1 = (int(newbox[0]), int(newbox[1]))
