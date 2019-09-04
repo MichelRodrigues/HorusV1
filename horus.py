@@ -14,8 +14,8 @@ file1 = open("contagem.txt", "r+")
 file1.seek(37)
 contagem = (file1.read(6))
 
-#ContadorSaidas = int(contagem)
-ContadorSaidas=0
+ContadorSaidas = int(contagem)
+#ContadorSaidas=0
 
 attempts = 0
 status = 400
@@ -26,8 +26,8 @@ face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/ha
 #face_cascade1 = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_profileface.xml")
 
 videoPath = "/home/pi/teste.mp4"
-cap = cv2.VideoCapture(videoPath)
-#cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(videoPath)
+cap = cv2.VideoCapture(0)
 
 bboxes = []
 bbox=[]
@@ -145,7 +145,7 @@ while(True):
         
         bboxes.remove(bbox)
     
-    '''
+    
     if (ok != None and attempts == 0):
       ok=None  
       if ( status >= 400 and attempts <=5):
@@ -190,7 +190,7 @@ while(True):
               break
             else:
               cv2.putText(frame, "Registro enviado para a nuvem!...", (5, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
-    '''         
+             
     cv2.putText(frame, "Contagem: {}".format(str(ContadorSaidas)), (5, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
               
                     #cv2.rectangle(frame, (x_, y_), (x1, y1), (255, 0, 100), 2)
