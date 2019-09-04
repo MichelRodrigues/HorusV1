@@ -144,7 +144,7 @@ while(True):
         numFaces-=1
         
         bboxes.remove(bbox)
-    
+    '''
     
     if (ok != None and attempts == 0):
       ok=None  
@@ -190,7 +190,7 @@ while(True):
               break
             else:
               cv2.putText(frame, "Registro enviado para a nuvem!...", (5, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
-             
+    '''        
     cv2.putText(frame, "Contagem: {}".format(str(ContadorSaidas)), (5, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
               
                     #cv2.rectangle(frame, (x_, y_), (x1, y1), (255, 0, 100), 2)
