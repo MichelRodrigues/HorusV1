@@ -14,8 +14,8 @@ file1 = open("contagem.txt", "r+")
 file1.seek(37)
 contagem = (file1.read(6))
 
-ContadorSaidas = int(contagem)
-#ContadorSaidas=0
+#ContadorSaidas = int(contagem)
+ContadorSaidas=0
 
 attempts = 0
 status = 400
@@ -25,9 +25,9 @@ face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/ha
 #face_cascade = cv2.CascadeClassifier("/home/pi/models/upperbody_recognition_model.xml")
 #face_cascade1 = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_profileface.xml")
 
-videoPath = "/home/pi/vim.mp4"
-#cap = cv2.VideoCapture(videoPath)
-cap = cv2.VideoCapture(0)
+videoPath = "/home/pi/teste.mp4"
+cap = cv2.VideoCapture(videoPath)
+#cap = cv2.VideoCapture(0)
 
 bboxes = []
 bbox=[]
@@ -67,17 +67,24 @@ while(True):
     
       a=len(faces)
     
+    '''  
+    if faces_cont == 0:
+          timeOut = datetime.now() - tempoIni
+        else:
+          tempoIni = datetime.now()
+    '''
     if(numFaces < a and flag==0):
-       
+      
       numFaces=1+numFaces
       
       for (x,y,w,h) in faces:
-        coord=(x,y,w,h+40)  
+        coord=(x,y,w,h+40)
+        
       
       flag=1 
     
     if a != 0 and flag == 1:
-        
+        tempoIni = datetime.now()
         bbox=tuple(coord)
         bboxes.append(bbox)
         tracker = cv2.TrackerMedianFlow_create()
@@ -88,38 +95,57 @@ while(True):
           
           track = True
     
-            
+        
+    flag_anterior = flag        
     
     if track == True:
       
       
-      
+      timeOut=datetime.now()-tempoIni
       boxes = track_system()
       
       #print(boxes)
-      
+       
       for i, newbox in enumerate(boxes):
         p1 = (int(newbox[0]), int(newbox[1]))
         p2 = (int(newbox[0] + newbox[2]), int(newbox[1] + newbox[3]))
-        #cv2.rectangle(frame, p1, p2, (255,0,0), 2, 1)
-        cv2.putText(frame, "rastreando ...", (int(newbox[0]+90), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
+        #cv2.rectangle(frame, p1, p2, (255,0,0), 1, 1)
+        cv2.putText(frame, "rastreando ...", (int(newbox[0]+150), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
         
-        if(int(newbox[1] + newbox[3]) > 460):
+        movement= abs(newbox[1] - y)
+        #print(movement)
+        
+        #valor timeOut e movimento deve ser ajustado empiricamente
+        if(timeOut.seconds >3 and movement < 50):
+          tracker.clear()
+          flag=0
+          numFaces-=1
+          track=False
+          bboxes.remove(bbox)
+        
+        if(int(newbox[1] + newbox[3]) > 460 ):
           ok=1
           attempts = 0
-          flag=0
+          flag = 1
+          if (flag > flag_anterior):
+            ContadorSaidas +=1  
+          
           
           tracker.clear()
           
            
           track=False
+          
       boxes=[]
+    
     if ok ==1:
         
-        ContadorSaidas=ContadorSaidas+numFaces
+        flag=0
         numFaces-=1
+        
         bboxes.remove(bbox)
     
+    '''
     if (ok != None and attempts == 0):
       ok=None  
       if ( status >= 400 and attempts <=5):
@@ -164,10 +190,11 @@ while(True):
               break
             else:
               cv2.putText(frame, "Registro enviado para a nuvem!...", (5, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
-              
+    '''         
     cv2.putText(frame, "Contagem: {}".format(str(ContadorSaidas)), (5, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
               
                     #cv2.rectangle(frame, (x_, y_), (x1, y1), (255, 0, 100), 2)
+                 
     cv2.putText(frame, "Pessoas detectadas: {}".format(str(numFaces)), (5, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 55), 2)
     file1 = open("contagem.txt", "w")
     #salva registros txt
