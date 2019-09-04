@@ -116,7 +116,7 @@ while(True):
         #print(movement)
         
         #valor timeOut e movimento deve ser ajustado empiricamente
-        if((timeOut.seconds >3 and movement < 50) or timeOut.seconds >7 ):
+        if((timeOut.seconds >2 and movement < 50) or timeOut.seconds >5 ):
           tracker.clear()
           flag=0
           numFaces-=1
