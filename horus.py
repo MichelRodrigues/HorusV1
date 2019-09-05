@@ -40,6 +40,7 @@ frame_altura =int( cap.get( cv2.CAP_PROP_FRAME_HEIGHT))
 numFaces=0
 coord=[]
 track=False
+seg=4
 a=0
 tempoIni = datetime.now()
 
@@ -127,7 +128,9 @@ while(True):
           ok=1
           attempts = 0
           flag = 1
-          if (flag > flag_anterior):
+          coordF=tuple(newbox)
+          seg=abs(newbox[1]-bbox[1])
+          if (flag > flag_anterior and seg > 3):
             ContadorSaidas +=1  
           
           
