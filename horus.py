@@ -21,7 +21,8 @@ attempts = 0
 status = 400
 
 
-face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_frontalface_alt2.xml")
+#face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_frontalface_alt2.xml")
+face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_upperbody.xml")
 #face_cascade = cv2.CascadeClassifier("/home/pi/models/upperbody_recognition_model.xml")
 #face_cascade1 = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_profileface.xml")
 
@@ -64,7 +65,7 @@ while(True):
     
     if(numFaces==0):
        
-      faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=3)
+      faces = face_cascade.detectMultiScale(gray, scaleFactor=1.5, minNeighbors=3, minSize = (50,50))
     
       a=len(faces)
     
@@ -79,7 +80,8 @@ while(True):
       numFaces=1+numFaces
       
       for (x,y,w,h) in faces:
-        coord=(x,y,w,h+40)
+        coord=(x+30,y+30,w-30,h+40)    
+        #coord=(x,y,w,h+40)
         
       
       flag=1 
@@ -110,8 +112,8 @@ while(True):
       for i, newbox in enumerate(boxes):
         p1 = (int(newbox[0]), int(newbox[1]))
         p2 = (int(newbox[0] + newbox[2]), int(newbox[1] + newbox[3]))
-        #cv2.rectangle(frame, p1, p2, (255,0,0), 1, 1)
-        cv2.putText(frame, "rastreando ...", (int(newbox[0]+150), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
+        cv2.rectangle(frame, p1, p2, (255,0,0), 1, 1)
+        #cv2.putText(frame, "rastreando ...", (int(newbox[0]+150), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
         
         movement= abs(newbox[1] - y)
         #print(movement)
