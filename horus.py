@@ -65,7 +65,7 @@ while(True):
     
     if(numFaces==0):
        
-      faces = face_cascade.detectMultiScale(gray, scaleFactor=1.5, minNeighbors=3, minSize = (50,50))
+      faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize = (50,50))
     
       a=len(faces)
     
@@ -113,7 +113,7 @@ while(True):
         p1 = (int(newbox[0]), int(newbox[1]))
         p2 = (int(newbox[0] + newbox[2]), int(newbox[1] + newbox[3]))
         cv2.rectangle(frame, p1, p2, (255,0,0), 1, 1)
-        #cv2.putText(frame, "rastreando ...", (int(newbox[0]+150), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
+        cv2.putText(frame, "rastreando ...", (int(newbox[0]+150), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
         
         movement= abs(newbox[1] - y)
         #print(movement)
