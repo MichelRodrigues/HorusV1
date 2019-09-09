@@ -23,6 +23,7 @@ status = 400
 
 #face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_frontalface_alt2.xml")
 face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_upperbody.xml")
+#face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_upperbody.xml")
 #face_cascade = cv2.CascadeClassifier("/home/pi/models/upperbody_recognition_model.xml")
 #face_cascade1 = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_profileface.xml")
 
@@ -65,7 +66,7 @@ while(True):
     
     if(numFaces==0):
        
-      faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize = (50,50))
+      faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize = (60,60), maxSize = (140,140))
     
       a=len(faces)
     
@@ -80,9 +81,10 @@ while(True):
       numFaces=1+numFaces
       
       for (x,y,w,h) in faces:
-        coord=(x+30,y+30,w-30,h+40)    
+        #
+        coord=(x+30,y+30,w-20,h+40)    
         #coord=(x,y,w,h+40)
-        
+        cv2.rectangle(frame, (x,y), (x+w,y+h), (255,0,255), 1, 1) 
       
       flag=1 
     
@@ -113,13 +115,13 @@ while(True):
         p1 = (int(newbox[0]), int(newbox[1]))
         p2 = (int(newbox[0] + newbox[2]), int(newbox[1] + newbox[3]))
         cv2.rectangle(frame, p1, p2, (255,0,0), 1, 1)
-        cv2.putText(frame, "rastreando ...", (int(newbox[0]+150), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
+        #cv2.putText(frame, "rastreando ...", (int(newbox[0]+150), int(newbox[1])), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
         
         movement= abs(newbox[1] - y)
         #print(movement)
         
         #valor timeOut e movimento deve ser ajustado empiricamente
-        if((timeOut.seconds >2 and movement < 50) or timeOut.seconds >5 ):
+        if((timeOut.seconds >2 and movement < 60) or timeOut.seconds >5 ):
           tracker.clear()
           flag=0
           numFaces-=1
