@@ -27,8 +27,8 @@ face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/ha
 #face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_profileface.xml")
 
 videoPath = "/home/pi/tem.mp4"
-cap = cv2.VideoCapture(videoPath)
-#cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(videoPath)
+cap = cv2.VideoCapture(0)
 
 bboxes = []
 bbox=[]
