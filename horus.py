@@ -147,7 +147,7 @@ while(True):
           flag = 1
           coordF=tuple(newbox)
           seg=abs((newbox[1])-(bbox[1]))
-          print(seg)
+          #print(seg)
           if (flag > flag_anterior and seg > 30):
             ContadorSaidas +=1  
           
