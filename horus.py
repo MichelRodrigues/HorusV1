@@ -13,8 +13,8 @@ file1 = open("contagem.txt", "r+")
 file1.seek(37)
 contagem = (file1.read(6))
 
-#ContadorSaidas = int(contagem)
-ContadorSaidas=0
+ContadorSaidas = int(contagem)
+#ContadorSaidas=0
 
 attempts = 0
 status = 400
