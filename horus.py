@@ -93,12 +93,12 @@ while True:
           
           if(timeOut1.seconds >= 6):
             soma1 = flag1 + soma1
-            crud_utils.inserir_dado(2, 1, 'ef9f40de-cf83-48f5-b360-e5d269bbe71a', soma1)
+            crud_utils.inserir_dado(2, 1, 'ef9f40de-cf83-48f5-b360-e5d269bbe71a', soma)
             
             flag1=0
           if(timeOut2.seconds >= 6):
             soma2 =  flag2 + soma2
-            crud_utils.inserir_dado(2, 1, 'ef9f40de-cf83-48f5-b360-e5d269bbe71a', soma2)
+            
             
             flag2=0  
           
