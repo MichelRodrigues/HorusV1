@@ -1,198 +1,138 @@
 #!/usr/bin/python3
 
-
-#Atualizacao de teste v2
-
+import crud_utils
 import cv2
-import imutils
 from datetime import datetime
 import requests
 import json
 
-file1 = open("contagem.txt", "r+")
-file1.seek(37)
-contagem = (file1.read(6))
-
-ContadorSaidas = int(contagem)
-#ContadorSaidas=0
-
-attempts = 0
-status = 400
-
-
 face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_frontalface_alt2.xml")
-#face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_upperbody.xml")
-#face_cascade = cv2.CascadeClassifier("/home/pi/cascadeH5.xml")
-#face_cascade = cv2.CascadeClassifier("/home/pi/models/upperbody_recognition_model.xml")
-#face_cascade = cv2.CascadeClassifier("/home/pi/opencv-3.4.3/data/haarcascades/haarcascade_profileface.xml")
 
-videoPath = "/home/pi/tem.mp4"
+videoPath = "/home/pi/tim.mp4"
 #cap = cv2.VideoCapture(videoPath)
 cap = cv2.VideoCapture(0)
 
+ContadorSaidas=0
 bboxes = []
 bbox=[]
 boxes = []
-
-frame_largura = int( cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-
-frame_altura =int( cap.get( cv2.CAP_PROP_FRAME_HEIGHT))
-
-numFaces=0
-numMov=0
-coord=[]
-track=False
-seg=4
-a=0
-areaMin=50000
-areaMax=150000
 tempoIni = datetime.now()
+tempoIni1 = datetime.now()
+tempoIni2 = datetime.now()
+b=0
+face_ja=0
+a =0
+beta=0
+flag=0
+numFaces = 0
+frame_altura =int( cap.get( cv2.CAP_PROP_FRAME_HEIGHT))
+flag1=0
+flag2=0
+soma=0
+soma1=0
+soma2=0
 
-objectID=0
-#fgbg = cv2.bgsegm.createBackgroundSubtractorMOG()
-fgbg = cv2.createBackgroundSubtractorMOG2(history = 6, varThreshold = 56, detectShadows = False)
-#fgbg = cv2.createBackgroundSubtractorKNN()
-#fgbg = cv2.createBackgroundSubtractorMOG2()
-#multiTracker = cv2.MultiTracker_create()
-
-def track_system():
-    
-    success, boxes = multiTracker.update(frame)
-    return boxes
-
-while(True):
-    
-    flag=0
-    #area=0
-    ok=None
-    
-    ret, frame = cap.read()
-    
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    dim= cv2.GaussianBlur(gray, (7, 7), 0)
-    fgmask = fgbg.apply(dim)
-    if(numMov==0):
+while True:
+      face_anterior = a
+            
+      ret, frame = cap.read()
+      frame = cv2.flip(frame, 0)
       
-      (x, y, w, h) = cv2.boundingRect(fgmask) #x e y: coordenadas do vertice superior esquerdo
-      area=w*h
-    #200000 eh um valor grande
-      if(area > areaMin and area < areaMax):
-        #tempoIni = datetime.now()
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 1)
-        numMov=1
-        coord=(x+60,y+60,w-80,h-90)
-        
-        
-      else:
-        numMov=0
-        
-    if(numFaces < numMov and flag==0):
-      
-      numFaces=1+numFaces
-       
-      flag=1
-      
-    
-    '''
-    print(coord)
-    print(numMov)
-    print(flag)
-    '''
-    if numMov != 0 and flag == 1 :
-        tempoIni = datetime.now()
-        bbox=tuple(coord)
-        bboxes.append(bbox)
-        tracker = cv2.TrackerMedianFlow_create()
-        multiTracker = cv2.MultiTracker_create()
-        for bbox in bboxes:
-          
-          multiTracker.add(tracker, frame, bbox) 
-          
-          track = True
-    
-        
-    flag_anterior = flag        
-    
-    if track == True:
+      gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
       
       
-      timeOut=datetime.now()-tempoIni
-      boxes = track_system()
+      faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=3)
+    
+      a=len(faces)
       
-      #print(boxes)
-       
-      for i, newbox in enumerate(boxes):
-        p1 = (int(newbox[0]), int(newbox[1]))
-        p2 = (int(newbox[0] + newbox[2]), int(newbox[1] + newbox[3]))
-        cv2.rectangle(frame, p1, p2, (255,0,0), 1, 1)
-        cv2.putText(frame, "rastreando ...", (int(newbox[0]+100), int(newbox[1]-10)), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255, 0, 0), 2)
-        
-        movement= abs((newbox[1]-60) - y)
-        #print(y)
-        #print(movement)
-        
-        #valor timeOut e movimento deve ser ajustado empiricamente
-        if((timeOut.seconds >2 and movement < 60) or timeOut.seconds > 5 ):
-          tracker.clear()
-          flag=0
-          numFaces-=1
-          numMov=0
-          track=False
-          bboxes.remove(bbox)
-        
-        #if(int(newbox[1] + newbox[3]) > 460 ):
-        if(int(newbox[1]) > 350 ):
-          ok=1
-          attempts = 0
-          flag = 1
-          coordF=tuple(newbox)
-          seg=abs((newbox[1])-(bbox[1]))
-          #print(seg)
-          if (flag > flag_anterior and seg > 30):
-            ContadorSaidas +=1  
+      for (x,y,w,h) in faces:
           
-          
-          tracker.clear()
-          
-           
-          track=False
-          
-      boxes=[]
-    
-    if ok ==1:
-        
-        flag=0
-        numFaces-=1
-        numMov=0
-        bboxes.remove(bbox)
-    
-          
-    cv2.putText(frame, "Contagem: {}".format(str(ContadorSaidas)), (30, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-              
-                    #cv2.rectangle(frame, (x_, y_), (x1, y1), (255, 0, 100), 2)
-                 
-    cv2.putText(frame, "Pessoas detectadas: {}".format(str(numFaces)), (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 55), 2)
-    #cv2.putText(frame, "x: {}".format(str(numFaces)), (20, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 55), 2)
-    file1 = open("contagem.txt", "w")
-    #salva registros txt
-    L = ["Id: "+str(objectID)+" \n", "Flag: "+str(flag)+" \n", "Contagem:"  +str(ContadorSaidas)+" \n"]
-
-    file1.write("Registros: \n")
-    file1.writelines(L)
-    file1.close()
-    
-    
+          coord=(x+10,y+20,w-20,h+40)    
+          bbox=tuple(coord)
+          cv2.rectangle(frame, (x,y), (x+w,y+h), (255,0,255), 1, 1)
+      
+      while(numFaces < a):
+          numFaces=a+numFaces  
          
-    cv2.putText(frame, "Entrada da loja", (450, 290), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (250, 255, 55), 2)
-    cv2.line(frame, (0,270), (frame_largura ,270), (250, 255, 55), 1)       
-    cv2.putText(frame, "Pressione ESC para sair", (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 150, 100), 2)
-    #cv2.imshow('frame_masc',fgmask)
-    cv2.imshow("frame", frame)
-    
-    
-    if cv2.waitKey(1) == 27 & 0xFF :
+      if(face_anterior < a ):
+        tempoIni = datetime.now()
         
-        break
+        bboxes.append(bbox)
+        
+        if (bbox[1] < 260):
+          b=a
+      
+      if(a > 0):
+        tempoIni1 = datetime.now()
+        tempoIni2 = datetime.now()
+        if(bbox[1] > 300 and  bbox[0]>100 and  bbox[0] < 250):
+            flag1 = 1
+            
+        
+        if(bbox[1] > 300 and  bbox[0]>300 and  bbox[0] < 400):
+            flag2 = 1
+            
+       
+      
+      if(a <b):
+          
+          timeOut = datetime.now()-tempoIni
+          
+          
+          if(timeOut.seconds >= 6):
+             
+             if(b <= numFaces): 
+               ContadorSaidas=b+ContadorSaidas
+               crud_utils.inserir_dado(2, 2, 'd3f2d810-1193-4cef-8a7a-971890a4157d', ContadorSaidas)
+               print("enviado")
+               numFaces=0
+      
+      if(a < flag1 or a < flag2 ):
+          timeOut1 = datetime.now()-tempoIni1
+          timeOut2 = datetime.now()-tempoIni2
+          
+          if(timeOut1.seconds >= 6):
+            soma1 = flag1 + soma1
+            crud_utils.inserir_dado(2, 1, 'ef9f40de-cf83-48f5-b360-e5d269bbe71a', soma1)
+            
+            flag1=0
+          if(timeOut2.seconds >= 6):
+            soma2 =  flag2 + soma2
+            crud_utils.inserir_dado(2, 1, 'ef9f40de-cf83-48f5-b360-e5d269bbe71a', soma2)
+            
+            flag2=0  
+          
+      
+      soma = soma1+soma2
+      
+      cv2.putText(frame, "Ultimos visitantes do estande: {}".format(str(b)), (5, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+      cv2.putText(frame, "Total de visitantes: {}".format(str(ContadorSaidas)), (5, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+      cv2.putText(frame, "Total de visitantes nos simuladores: {}".format(str(soma)), (5, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+      #simulador 1
+      cv2.putText(frame, "Simulador 1", (5, 230), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (250, 255, 55), 2)
+      cv2.putText(frame, "{}".format(str(flag1)), (80, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (250, 255, 55), 2)
+
+      cv2.line(frame, (100,300), (100 ,frame_altura), (250, 255, 55), 2)
+      cv2.line(frame, (250,300), (250 ,frame_altura), (250, 255, 55), 2)
+    
+    
+      #simulador 2
+      cv2.putText(frame, "Simulador 2", (460, 230), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+      cv2.putText(frame, "{}".format(str(flag2)), (520, 260), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+
+      cv2.line(frame, (300,300), (300 ,frame_altura), (0, 0, 255), 2)
+      cv2.line(frame, (460,300), (460 ,frame_altura), (0, 0, 255), 2)   
+    
+      #cv2.putText(frame, "Pressione ESC para sair", (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 150, 100), 2)
+      cv2.putText(frame, "Horus V1.0", (5, 30), cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, 0.8, (0, 0, 255), 2)
+      #cv2.putText(frame, "Total de usuarios: {}".format(str(ContadorSaidas)), (5, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+      cv2.imshow("Trudata - Rota simuladores", frame)
+      
+    
+    
+      if cv2.waitKey(1) == 27 & 0xFF :
+        
+          break
     
 cap.release()  
 cv2.destroyAllWindows()
