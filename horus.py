@@ -65,11 +65,11 @@ while True:
       if(a > 0):
         tempoIni1 = datetime.now()
         tempoIni2 = datetime.now()
-        if(bbox[1] > 300 and  bbox[0]>100 and  bbox[0] < 250):
+        if(bbox[1] > 350 and  bbox[0]>100 and  bbox[0] < 250):
             flag1 = 1
             
         
-        if(bbox[1] > 300 and  bbox[0]>300 and  bbox[0] < 400):
+        if(bbox[1] > 350 and  bbox[0]>300 and  bbox[0] < 400):
             flag2 = 1
             
        
@@ -79,24 +79,24 @@ while True:
           timeOut = datetime.now()-tempoIni
           
           
-          if(timeOut.seconds >= 6):
+          if(timeOut.seconds >= 10):
              
              if(b <= numFaces): 
                ContadorSaidas=b+ContadorSaidas
                crud_utils.inserir_dado(2, 2, 'd3f2d810-1193-4cef-8a7a-971890a4157d', ContadorSaidas)
-               print("enviado")
+               
                numFaces=0
       
       if(a < flag1 or a < flag2 ):
           timeOut1 = datetime.now()-tempoIni1
           timeOut2 = datetime.now()-tempoIni2
           
-          if(timeOut1.seconds >= 6):
+          if(timeOut1.seconds >= 30):
             soma1 = flag1 + soma1
             crud_utils.inserir_dado(2, 1, 'ef9f40de-cf83-48f5-b360-e5d269bbe71a', soma)
             
             flag1=0
-          if(timeOut2.seconds >= 6):
+          if(timeOut2.seconds >= 30):
             soma2 =  flag2 + soma2
             
             

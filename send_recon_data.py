@@ -5,7 +5,15 @@ import requests
 import json
 import time
 import datetime
+import logging
 import crud_utils
+
+logger = logging.getLogger('send_recon_data')
+handler = logging.FileHandler('datalog.log')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 def enviaDados():
     dataRecon = crud_utils.read_nao_enviados()
@@ -14,7 +22,8 @@ def enviaDados():
         token = getToken()
 
         if token == '':
-            print('Erro ao buscar o token. Não foi possível o envio dos dados')
+            logger.info('Erro ao buscar o token. Não foi possível o envio dos dados')
+            #print('Erro ao buscar o token. Não foi possível o envio dos dados')
             return
 
         list_dados = []
@@ -41,20 +50,24 @@ def enviaDados():
         try:
             resp = requests.post(url = url, data = json.dumps(request_body), headers = header, timeout = 10)
         except Exception as e:
-            print('Ocorreu um problema com a requisição. Verifique o acesso à web. Erro: ' + str(e))
+            logger.info('Ocorreu um problema com a requisição. Verifique o acesso à web. Erro: ' + str(e))
+            #print('Ocorreu um problema com a requisição. Verifique o acesso à web. Erro: ' + str(e))
             return
 
         if resp.status_code == 400 or resp.status_code == 401:
-            print('Não foi possível enviar os registros. Acesso não autorizado')
+            logger.info('Não foi possível enviar os registros. Acesso não autorizado')
+            #print('Não foi possível enviar os registros. Acesso não autorizado')
             return
 
         if resp.status_code == 200:
             analisaRetornoDados(resp.json(), dataRecon)
             return
 
-        print('Ocorreu algum problema com a execução.')
+        logger.info('Ocorreu algum problema com a execução.')
+        #print('Ocorreu algum problema com a execução.')
 
-    print('Não existem dados para envio.')
+    #print('Não existem dados para envio.')
+    logger.info('Não existem dados para envio.')
             
 
 def getToken():
@@ -93,7 +106,8 @@ def request_token():
     try:
         resp = requests.post(url, data = json.dumps(requestBody), headers = headers, timeout = 10)
     except:
-        print('Não foi possível conectar ao servidor para obter o token. Tente mais tarde.')
+        logger.info('Não foi possível conectar ao servidor para obter o token. Tente mais tarde.')
+        #print('Não foi possível conectar ao servidor para obter o token. Tente mais tarde.')
         return
 
     status = resp.status_code
@@ -109,7 +123,8 @@ def analisaRetornoDados(retorno, dados_enviados):
     count_enviados = len(dados_enviados)
 
     if count_retorno == len(dados_enviados):
-        print('Não foi possível inserir nenhum registro no servidor.')
+        logger.info('Não foi possível inserir nenhum registro no servidor.')
+        #print('Não foi possível inserir nenhum registro no servidor.')
         return
 
     for item in dados_enviados:
@@ -117,7 +132,8 @@ def analisaRetornoDados(retorno, dados_enviados):
 
     ##statusCode = 2 todos os dados ok, se não for tem itens com erro
     if retorno.get('statusCode') == '2':
-        print('Todos os dados foram enviados com sucesso. Total: {}'.format(count_enviados))
+        logger.info('Todos os dados foram enviados com sucesso. Total: {}'.format(count_enviados))
+        #print('Todos os dados foram enviados com sucesso. Total: {}'.format(count_enviados))
         return
 
     itens_erro = retorno.get('itens')
@@ -126,8 +142,10 @@ def analisaRetornoDados(retorno, dados_enviados):
         crud_utils.update_dado(item.get('codigo'), 0)
 
     itens_sucesso = count_enviados - count_retorno
-    print('Dados inseridos parcialmente no servidor. Com sucesso: {} / Erros: {}'.format(
+    logger.info('Dados inseridos parcialmente no servidor. Com sucesso: {} / Erros: {}'.format(
         itens_sucesso, count_retorno))
+    #print('Dados inseridos parcialmente no servidor. Com sucesso: {} / Erros: {}'.format(
+    #    itens_sucesso, count_retorno))
 
-
-enviaDados()
+if __name__ == '__main__':
+    enviaDados()

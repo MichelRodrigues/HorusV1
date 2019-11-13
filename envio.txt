@@ -1,0 +1,27 @@
+Ele depende de uma lib chamada python_crontab, mas o próprio script faz o download
+da lib. Se não der certo vai jogar uma mensagem na tela, se der aparece
+
+** Python crontab instalado com sucesso **
+
+Pra rodar o script de criação do job:
+
+$ sudo python3 cron_job_create.py /path/to/send_data_recon/ 22 30
+
+Parâmetros depois do nome do script:
+1º - o caminho para onde está o script send_data_recon.py. Não precisa
+colocar o nome do arquivo também, só o caminho.
+2º - hora em que será realizado. Valor entre 0 e 23
+3º - minuto em que será realizado. Valor entre 0 e 59
+Horas e minutos DEVEM SER INFORMADOS, mesmo que ambos sejam 0.
+
+Se criou o job ok, vai aparecer uma mensagem na tela, similar à abaixo. Senão joga o erro na tela.
+
+Job criado com sucesso! Lista existentes: 
+30 22 * * * cd /home/pablo/projects/python_sqlite/ && $(which python3) send_recon_data.py # job_send_data
+
+Ele vai rodar TODO O DIA a atualização de dados, uma vez, no horário informado.
+Pra cancelar o job, só rodar o script stop_jobs.py. Ambos devem ser executados com sudo.
+
+Se tu for rodar a atualização automática, troca o send_recon_data.py por este que está em anexo.
+Ele vai gravar as mensagens de sucesso/erro no datalog.log. Se não for usar, não precisa, que daí
+as mensagens de erro aparecem na tela.
