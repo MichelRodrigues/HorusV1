@@ -5,7 +5,7 @@ da lib. Se não der certo vai jogar uma mensagem na tela, se der aparece
 
 Pra rodar o script de criação do job:
 
-$ sudo python3 cron_job_create.py /path/to/send_data_recon/ 22 30
+$ sudo python3 cron_job_create.py /path/to/send_data_recon/ 22 45
 
 Parâmetros depois do nome do script:
 1º - o caminho para onde está o script send_data_recon.py. Não precisa
